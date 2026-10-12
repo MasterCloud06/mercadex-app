@@ -10,6 +10,12 @@ export const API_URL: string = (
   'https://mercadex-api.onrender.com'
 ).replace(/\/$/, '');
 
+/** "desarrollo" muestra un aviso en pantalla para no confundirlo con la app real. */
+export const ENTORNO: 'desarrollo' | 'produccion' =
+  process.env.EXPO_PUBLIC_ENTORNO === 'produccion' || API_URL === 'https://mercadex-api.onrender.com'
+    ? 'produccion'
+    : 'desarrollo';
+
 export class ErrorApi extends Error {
   constructor(mensaje: string, public readonly estado: number) {
     super(mensaje);
