@@ -43,6 +43,14 @@ export function fecha(valor: string, conHora = false): string {
     ? new Date(Number(soloFecha[1]), Number(soloFecha[2]) - 1, Number(soloFecha[3]))
     : new Date(valor);
   if (Number.isNaN(d.getTime())) return valor;
+  // El servidor envía la hora de Bolivia con su zona (…-04:00): se muestra
+  // esa hora tal cual, aunque el celular esté configurado en otra zona.
+  const conZona = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(valor);
+  if (conZona && /[+-]\d{2}:\d{2}$/.test(valor)) {
+    const base = `${Number(conZona[3])} ${meses[Number(conZona[2]) - 1]} ${conZona[1]}`;
+    return conHora ? `${base}, ${conZona[4]}:${conZona[5]}` : base;
+  }
+
   const base = `${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
   if (!conHora) return base;
   const hh = String(d.getHours()).padStart(2, '0');
