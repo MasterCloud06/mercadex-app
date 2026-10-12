@@ -5,6 +5,7 @@ Proyecto separado de Mercadex (escritorio) para los socios de la asociación.
 | Carpeta | Qué es |
 |---|---|
 | `movil/` | App para Android e iOS (Expo / React Native): deudas, pago por QR con comprobante, recibos y cuenta del socio. |
+| `panel/` | Panel web de caja (React + Vite): revisar comprobantes con foto, dar acceso a socios y cargar el QR de cobro. |
 
 ## Ramas y entornos (igual que Mercadex)
 
@@ -48,6 +49,20 @@ La configuración de cada entorno está en `movil/`:
    npm install
    npx expo start
    ```
+
+## Panel web de caja (desarrollo)
+
+Con la API de Mercadex encendida en tu PC (`--urls http://127.0.0.1:5189`):
+
+```powershell
+cd C:\mercadex-app\panel
+npm install
+npm run dev
+```
+
+Abre http://localhost:5173 e ingresa con el usuario administrador de Mercadex
+(`MERCADEX_ADMIN_USER` / `MERCADEX_ADMIN_PASSWORD` de tu configuración local).
+La API de desarrollo ya acepta el panel en ese puerto.
 
 Los datos (casetas, deudas, recibos) viven en la base de Mercadex, así que la app
 los lee por la API de Mercadex. Las rutas que usa la app (`/api/app/...`) se
