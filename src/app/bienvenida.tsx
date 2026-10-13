@@ -6,7 +6,7 @@ import { Aviso, Boton, Campo } from '@/componentes/ui';
 import { useSesion } from '@/lib/sesion';
 import { colores, espacio, radio } from '@/lib/tema';
 
-type Modo = 'ingresar' | 'activar';
+type Modo = 'ingresar' | 'activar' | 'recuperar';
 
 export default function Bienvenida() {
   const { ingresar, activar } = useSesion();
@@ -29,7 +29,9 @@ export default function Bienvenida() {
     setError(null);
     if (!documento.trim()) return setError('Escribe tu número de carnet.');
 
-    if (modo === 'activar') {
+    const conCodigo = modo !== 'ingresar';
+
+    if (conCodigo) {
       if (codigo.replace(/\D/g, '').length !== 8) return setError('El código de activación tiene 8 números.');
       if (contrasena.length < 8 || !/[A-Za-z]/.test(contrasena) || !/\d/.test(contrasena))
         return setError('La contraseña debe tener al menos 8 caracteres, con letras y números.');
@@ -40,7 +42,7 @@ export default function Bienvenida() {
 
     setEnviando(true);
     try {
-      if (modo === 'activar') await activar(documento.trim(), codigo.replace(/\D/g, ''), contrasena);
+      if (conCodigo) await activar(documento.trim(), codigo.replace(/\D/g, ''), contrasena);
       else await ingresar(documento.trim(), contrasena);
       router.replace('/(tabs)');
     } catch (e) {
@@ -62,6 +64,19 @@ export default function Bienvenida() {
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={e.hoja}>
         <ScrollView contentContainerStyle={{ padding: espacio.xl, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
+          {modo === 'recuperar' ? (
+            <>
+              <Pressable onPress={() => cambiarModo('ingresar')} accessibilityRole="link" style={e.volver} hitSlop={8}>
+                <Text style={e.volverTexto}>‹ Volver a ingresar</Text>
+              </Pressable>
+              <Text style={e.titulo}>Recuperar contraseña</Text>
+              <View style={e.pasos}>
+                <Text style={e.paso}>1. Ve a la caja de la asociación con tu carnet y pide restablecer tu contraseña.</Text>
+                <Text style={e.paso}>2. Te darán un código de 8 números. Vale por poco tiempo y se usa una sola vez.</Text>
+                <Text style={e.paso}>3. Escríbelo aquí con tu carnet y crea tu contraseña nueva.</Text>
+              </View>
+            </>
+          ) : (
           <View style={e.selector} accessibilityRole="tablist">
             {(['ingresar', 'activar'] as const).map((m) => (
               <Pressable
@@ -76,6 +91,7 @@ export default function Bienvenida() {
               </Pressable>
             ))}
           </View>
+          )}
 
           {modo === 'activar' ? (
             <Text style={e.explicacion}>
@@ -95,9 +111,9 @@ export default function Bienvenida() {
             textContentType="username"
           />
 
-          {modo === 'activar' ? (
+          {modo !== 'ingresar' ? (
             <Campo
-              etiqueta="Código de activación"
+              etiqueta={modo === 'recuperar' ? 'Código de la caja' : 'Código de activación'}
               value={codigo}
               onChangeText={setCodigo}
               keyboardType="number-pad"
@@ -108,16 +124,16 @@ export default function Bienvenida() {
           ) : null}
 
           <Campo
-            etiqueta={modo === 'activar' ? 'Crea tu contraseña' : 'Contraseña'}
+            etiqueta={modo === 'activar' ? 'Crea tu contraseña' : modo === 'recuperar' ? 'Contraseña nueva' : 'Contraseña'}
             value={contrasena}
             onChangeText={setContrasena}
             secureTextEntry
             autoCapitalize="none"
-            textContentType={modo === 'activar' ? 'newPassword' : 'password'}
-            ayuda={modo === 'activar' ? 'Mínimo 8 caracteres, con letras y números.' : undefined}
+            textContentType={modo === 'ingresar' ? 'password' : 'newPassword'}
+            ayuda={modo !== 'ingresar' ? 'Mínimo 8 caracteres, con letras y números.' : undefined}
           />
 
-          {modo === 'activar' ? (
+          {modo !== 'ingresar' ? (
             <Campo
               etiqueta="Repite la contraseña"
               value={confirmacion}
@@ -129,14 +145,16 @@ export default function Bienvenida() {
           ) : null}
 
           <Boton
-            titulo={modo === 'activar' ? 'Activar y entrar' : 'Ingresar'}
+            titulo={modo === 'activar' ? 'Activar y entrar' : modo === 'recuperar' ? 'Guardar contraseña y entrar' : 'Ingresar'}
             onPress={enviar}
             cargando={enviando}
             estilo={{ marginTop: espacio.s }}
           />
 
           {modo === 'ingresar' ? (
-            <Text style={e.pie}>¿Olvidaste tu contraseña? Pide un código nuevo en la caja y elige «Activar mi cuenta».</Text>
+            <Pressable onPress={() => cambiarModo('recuperar')} accessibilityRole="link" style={e.olvido} hitSlop={8}>
+              <Text style={e.olvidoTexto}>¿Olvidaste tu contraseña?</Text>
+            </Pressable>
           ) : null}
         </ScrollView>
       </KeyboardAvoidingView>
@@ -163,5 +181,12 @@ const e = StyleSheet.create({
   opcionTexto: { fontSize: 15, fontWeight: '600', color: colores.textoSuave },
   opcionTextoActiva: { color: colores.tinta },
   explicacion: { fontSize: 14, lineHeight: 20, color: colores.textoSuave, marginBottom: espacio.l },
+  olvido: { alignSelf: 'center', marginTop: espacio.xl, paddingVertical: 6 },
+  olvidoTexto: { fontSize: 15, fontWeight: '600', color: colores.azul, textDecorationLine: 'underline' },
+  volver: { alignSelf: 'flex-start', marginBottom: espacio.m, paddingVertical: 4 },
+  volverTexto: { fontSize: 15, fontWeight: '600', color: colores.azul },
+  titulo: { fontSize: 22, fontWeight: '700', color: colores.tinta, marginBottom: espacio.m },
+  pasos: { backgroundColor: '#E6ECF2', borderRadius: radio.m, padding: espacio.l, marginBottom: espacio.l, gap: 6 },
+  paso: { fontSize: 14, lineHeight: 20, color: colores.tinta },
   pie: { fontSize: 13, lineHeight: 19, color: colores.textoSuave, textAlign: 'center', marginTop: espacio.xl },
 });
