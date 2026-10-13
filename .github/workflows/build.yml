@@ -2,22 +2,18 @@ name: build
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, 'feature/**', 'fix/**' ]
   pull_request:
 
 jobs:
   movil:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: movil
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: movil/package-lock.json
       - run: npm ci
       - name: Revisar tipos
         run: npx tsc --noEmit
@@ -25,19 +21,3 @@ jobs:
         run: npx expo export --platform android --output-dir dist
         env:
           CI: 1
-
-  panel:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: panel
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: panel/package-lock.json
-      - run: npm ci
-      - name: Revisar tipos y compilar
-        run: npm run build
