@@ -75,11 +75,13 @@ rutas de la app deben estar publicadas en la API de producción.
 
 ### Opción A: en tu PC con Android Studio (sin cuentas)
 
-Necesita Android Studio instalado. La primera vez tarda 10–15 minutos.
+Necesita Android Studio y **Java 21** (`winget install --id Microsoft.OpenJDK.21 -e`).
+El Java que trae Android Studio (25) no sirve para compilar las partes nativas.
+La primera vez tarda 10–15 minutos.
 
 ```powershell
 cd C:\mercadex-app\movil
-$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
+$env:JAVA_HOME = (Get-ChildItem "C:\Program Files\Microsoft" -Directory -Filter "jdk-21*" | Select-Object -First 1).FullName
 $env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
 npm install
 npm run apk
