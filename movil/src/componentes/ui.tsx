@@ -11,6 +11,7 @@ import {
   type TextInputProps,
   type ViewStyle,
 } from 'react-native';
+import { API_URL, ENTORNO } from '@/lib/api';
 import { colores, espacio, radio } from '@/lib/tema';
 
 type Icono = ComponentProps<typeof Ionicons>['name'];
@@ -136,7 +137,21 @@ export function Titulo({ children, sub }: { children: ReactNode; sub?: string })
   );
 }
 
+/** Franja visible solo en desarrollo: indica a qué servidor está conectada la app. */
+export function FranjaDesarrollo() {
+  if (ENTORNO !== 'desarrollo') return null;
+  return (
+    <View style={estilos.franja} accessibilityRole="text">
+      <Text style={estilos.franjaTexto} numberOfLines={1}>
+        Desarrollo · {API_URL.replace(/^https?:\/\//, '')}
+      </Text>
+    </View>
+  );
+}
+
 export const estilos = StyleSheet.create({
+  franja: { backgroundColor: colores.maiz, paddingVertical: 3, alignItems: 'center' },
+  franjaTexto: { fontSize: 11.5, fontWeight: '700', color: colores.azul },
   fila: { flexDirection: 'row', alignItems: 'center' },
   boton: { minHeight: 50, borderRadius: radio.m, paddingHorizontal: espacio.l, alignItems: 'center', justifyContent: 'center' },
   botonBorde: { borderWidth: 1, borderColor: colores.bordeCampo },

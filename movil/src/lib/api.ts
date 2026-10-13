@@ -10,6 +10,12 @@ export const API_URL: string = (
   'https://mercadex-api.onrender.com'
 ).replace(/\/$/, '');
 
+/** "desarrollo" muestra un aviso en pantalla para no confundirlo con la app real. */
+export const ENTORNO: 'desarrollo' | 'produccion' =
+  process.env.EXPO_PUBLIC_ENTORNO === 'produccion' || API_URL === 'https://mercadex-api.onrender.com'
+    ? 'produccion'
+    : 'desarrollo';
+
 export class ErrorApi extends Error {
   constructor(mensaje: string, public readonly estado: number) {
     super(mensaje);
@@ -31,8 +37,13 @@ export function encabezadosAuth(): Record<string, string> {
 async function solicitar<T>(metodo: string, ruta: string, cuerpo?: unknown): Promise<T> {
   let respuesta: Response;
 
+  // Render puede tardar hasta un minuto en "despertar" el servidor.
+  const control = new AbortController();
+  const limite = setTimeout(() => control.abort(), 75_000);
+
   try {
     respuesta = await fetch(`${API_URL}${ruta}`, {
+      signal: control.signal,
       method: metodo,
       headers: {
         Accept: 'application/json',
@@ -42,7 +53,14 @@ async function solicitar<T>(metodo: string, ruta: string, cuerpo?: unknown): Pro
       body: cuerpo !== undefined ? JSON.stringify(cuerpo) : undefined,
     });
   } catch {
-    throw new ErrorApi('Sin conexión con Mercadex. Revisa tu Internet e intenta de nuevo.', 0);
+    throw new ErrorApi(
+      control.signal.aborted
+        ? 'El servidor de Mercadex tardó demasiado en responder. Intenta de nuevo en un momento.'
+        : 'Sin conexión con Mercadex. Revisa tu Internet e intenta de nuevo.',
+      0,
+    );
+  } finally {
+    clearTimeout(limite);
   }
 
   const texto = await respuesta.text();
@@ -58,7 +76,9 @@ async function solicitar<T>(metodo: string, ruta: string, cuerpo?: unknown): Pro
       (datos as { mensaje?: string } | null)?.mensaje ??
       (respuesta.status >= 500
         ? 'El servidor tuvo un problema. Intenta en unos minutos.'
-        : `No se pudo completar (error ${respuesta.status}).`);
+        : respuesta.status === 404
+          ? 'Este servicio todavía no está disponible en el servidor de Mercadex.'
+          : `No se pudo completar (error ${respuesta.status}).`);
 
     // Sesión vencida o cerrada desde la caja: volver al inicio de sesión.
     if (respuesta.status === 401 && tokenActual && ruta !== '/api/app/login') {
