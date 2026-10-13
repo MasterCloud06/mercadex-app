@@ -3,3 +3,6 @@ node_modules/
 dist/
 .DS_Store
 .env*.local
+# Carpetas nativas generadas al compilar (no se editan a mano)
+movil/android/
+movil/ios/

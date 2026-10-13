@@ -67,3 +67,43 @@ La API de desarrollo ya acepta el panel en ese puerto.
 Los datos (casetas, deudas, recibos) viven en la base de Mercadex, así que la app
 los lee por la API de Mercadex. Las rutas que usa la app (`/api/app/...`) se
 agregan primero en desarrollo y llegan a producción cuando todo esté probado.
+
+## Exportar la app como APK
+
+El APK usa siempre la API de **producción** (Render). Antes de repartirlo, las
+rutas de la app deben estar publicadas en la API de producción.
+
+### Opción A: en tu PC con Android Studio (sin cuentas)
+
+Necesita Android Studio instalado. La primera vez tarda 10–15 minutos.
+
+```powershell
+cd C:\mercadex-app\movil
+$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
+$env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
+npm install
+npm run apk
+```
+
+El archivo queda en
+`movil\android\app\build\outputs\apk\release\app-release.apk`.
+Está firmado con una clave de prueba: sirve para instalarlo en celulares de la
+asociación, no para Google Play.
+
+### Opción B: en la nube con EAS (firmado, listo para repartir o publicar)
+
+Necesita una cuenta gratuita en https://expo.dev.
+
+```powershell
+cd C:\mercadex-app\movil
+npx eas-cli@latest login
+npx eas-cli@latest build --platform android --profile apk
+```
+
+Al terminar, EAS muestra un enlace y un QR para descargar el APK. EAS guarda la
+clave de firma de la app; usa siempre la misma cuenta para que las
+actualizaciones se instalen encima de la versión anterior.
+
+Para Google Play se usa `--profile playstore` (genera un .aab).
+
+Antes de cada versión nueva, sube `version` y `android.versionCode` en `movil/app.json`.

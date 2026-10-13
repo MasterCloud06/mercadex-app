@@ -18,7 +18,8 @@
       "infoPlist": {
         "NSCameraUsageDescription": "Para fotografiar el comprobante de pago.",
         "NSPhotoLibraryUsageDescription": "Para adjuntar la captura del comprobante de pago."
-      }
+      },
+      "buildNumber": "1"
     },
     "android": {
       "package": "bo.mercadex.socios",
@@ -28,7 +29,8 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png",
