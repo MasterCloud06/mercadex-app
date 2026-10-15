@@ -44,6 +44,18 @@ export default function Recibos() {
                   <Ionicons name={ver ? 'chevron-up' : 'chevron-down'} size={18} color={colores.textoTenue} style={{ marginLeft: 8 }} />
                 </View>
 
+                {r.anulado ? (
+                  <View style={e.anulacion}>
+                    <Text style={e.anulacionTitulo}>
+                      Recibo anulado{r.fechaAnulacion ? ` el ${fecha(r.fechaAnulacion, true)}` : ''}
+                    </Text>
+                    <Text style={e.anulacionTexto}>
+                      {r.motivoAnulacion ? `Motivo: ${r.motivoAnulacion}` : 'Sin motivo registrado.'}
+                    </Text>
+                    <Text style={e.anulacionNota}>Las deudas de este recibo volvieron a quedar pendientes.</Text>
+                  </View>
+                ) : null}
+
                 {ver ? (
                   <View style={e.detalleCaja}>
                     {r.detalle.map((d, i) => (
@@ -55,6 +67,7 @@ export default function Recibos() {
                         <Text style={e.lineaMonto}>{dinero(d.monto, r.moneda)}</Text>
                       </View>
                     ))}
+                    {r.emitidoPor ? <Text style={e.emisor}>Emitido por: {r.emitidoPor}</Text> : null}
                   </View>
                 ) : null}
               </Tarjeta>
@@ -75,4 +88,9 @@ const e = StyleSheet.create({
   linea: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
   lineaConcepto: { flex: 1, fontSize: 14, color: colores.texto },
   lineaMonto: { fontSize: 14, fontWeight: '600', color: colores.texto },
+  emisor: { fontSize: 13, color: colores.textoSuave, marginTop: 4 },
+  anulacion: { marginTop: espacio.m, padding: espacio.m, borderRadius: 10, backgroundColor: colores.rojoFondo, gap: 3 },
+  anulacionTitulo: { fontSize: 14, fontWeight: '700', color: colores.rojo },
+  anulacionTexto: { fontSize: 14, color: colores.rojo, lineHeight: 20 },
+  anulacionNota: { fontSize: 12.5, color: colores.textoSuave, marginTop: 2 },
 });

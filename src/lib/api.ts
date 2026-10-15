@@ -132,6 +132,11 @@ export type Recibo = {
   total: number;
   formaPago: string;
   detalle: { concepto: string; periodo: string | null; monto: number }[];
+  /** Solo en recibos anulados: por qué y cuándo se anuló. */
+  motivoAnulacion?: string | null;
+  fechaAnulacion?: string | null;
+  /** Nombre y cargo de quien emitió el recibo. */
+  emitidoPor?: string | null;
 };
 
 export type DatosPago = {
