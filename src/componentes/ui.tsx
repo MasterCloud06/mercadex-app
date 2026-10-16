@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import type { ComponentProps, ReactNode } from 'react';
+import { useState, type ComponentProps, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -69,14 +69,36 @@ export function Boton({
 }
 
 export function Campo({ etiqueta, ayuda, ...props }: TextInputProps & { etiqueta: string; ayuda?: string }) {
+  // Contraseñas: un ojo para mostrar u ocultar lo escrito (pedido de la directiva).
+  const esClave = !!props.secureTextEntry;
+  const [visible, setVisible] = useState(false);
+
   return (
     <View style={{ marginBottom: espacio.l }}>
       <Text style={estilos.etiqueta}>{etiqueta}</Text>
-      <TextInput
-        placeholderTextColor={colores.textoTenue}
-        {...props}
-        style={[estilos.campo, props.multiline ? { minHeight: 90, textAlignVertical: 'top', paddingTop: 12 } : null, props.style]}
-      />
+      <View>
+        <TextInput
+          placeholderTextColor={colores.textoTenue}
+          {...props}
+          secureTextEntry={esClave && !visible}
+          style={[
+            estilos.campo,
+            props.multiline ? { minHeight: 90, textAlignVertical: 'top', paddingTop: 12 } : null,
+            esClave ? { paddingRight: 52 } : null,
+            props.style,
+          ]}
+        />
+        {esClave ? (
+          <Pressable
+            onPress={() => setVisible((v) => !v)}
+            accessibilityRole="button"
+            accessibilityLabel={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            hitSlop={8}
+            style={estilos.ojo}>
+            <Ionicons name={visible ? 'eye-off-outline' : 'eye-outline'} size={22} color={colores.textoSuave} />
+          </Pressable>
+        ) : null}
+      </View>
       {ayuda ? <Text style={estilos.ayuda}>{ayuda}</Text> : null}
     </View>
   );
@@ -168,6 +190,7 @@ export const estilos = StyleSheet.create({
     backgroundColor: colores.blanco,
   },
   ayuda: { fontSize: 12.5, color: colores.textoSuave, marginTop: 6 },
+  ojo: { position: 'absolute', right: 0, top: 0, bottom: 0, width: 50, alignItems: 'center', justifyContent: 'center' },
   tarjeta: {
     backgroundColor: colores.blanco,
     borderRadius: radio.l,
