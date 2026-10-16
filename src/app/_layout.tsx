@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { Actualizacion } from '@/componentes/Actualizacion';
 import { FranjaDesarrollo } from '@/componentes/ui';
 import { ENTORNO } from '@/lib/api';
 import { ProveedorSesion } from '@/lib/sesion';
@@ -35,6 +36,7 @@ export default function Raiz() {
             }}
           />
         </Stack>
+        <Actualizacion />
       </ProveedorSesion>
     </SafeAreaProvider>
   );
